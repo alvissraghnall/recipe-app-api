@@ -34,8 +34,8 @@ public class TokenManager implements Serializable {
     @Serial
     private static final long serialVersionUID = -4491399601154132982L;
     @Value("${jwt.secret}") private String jwtSecret;
-    public String generateJwtToken(Authentication authentication) {
-        UserDTO userPrincipal = (UserDTO) authentication.getPrincipal();
+    public String generateJwtToken(UserDTO userPrincipal) {
+        // UserDTO userPrincipal = authentication.getPrincipal();
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .claim("user", userPrincipal.getId().toString())

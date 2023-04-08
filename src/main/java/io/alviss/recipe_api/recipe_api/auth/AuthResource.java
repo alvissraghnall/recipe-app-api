@@ -54,17 +54,18 @@ public class AuthResource {
         if (!passwordMatches) throw new InvalidPasswordException();
 
         final User userEntity = userService.mapToEntity(user, new User());
+        // userService.create(user)
         final VerificationToken _tkn = verificationTokenService.findByUser(userEntity);
 
         if (user.isEnabled() == false){
             if (_tkn.getExpiryDate().after(new Date())){
-                userService.delete(userEntity.getId());
+                userService.delete(user.getId());
                 return ResponseEntity.badRequest().body(new MessageResponse("Did not verify email so token expired. Please recreate account."));
-            }
+            }  
             return ResponseEntity.badRequest().body(new MessageResponse("Email not verified yet. Please verify e-mail address to continue"));
         }
 
-        String token = tokenManager.generateJwtToken((Authentication) user);
+        String token = tokenManager.generateJwtToken(user);
 
         final JwtResponse response = new JwtResponse();
         response.setToken(token);
@@ -93,7 +94,7 @@ public class AuthResource {
         final String recipientAddress = createdUser.getEmail();
         final String recipientName = createdUser.getName();
         final String subject = "Registration Confirmation";
-        verificationEmailService.sendMessage(recipientAddress, verificationEmailService.buildEmail(recipientName, getAppURL(request)));
+        verificationEmailService.sendMessage(recipientAddress, verificationEmailService.buildEmail(recipientName, getVerificationUrl(request, token)));
 
         return ResponseEntity.created(URI.create(getAppURL(request))).body(new MessageResponse("User successfully registered"));
     }
@@ -122,7 +123,7 @@ public class AuthResource {
         );
 
         if (token != null) {
-            verificationEmailService.sendMessage(user.getEmail(), verificationEmailService.buildEmail(user.getName(), getAppURL(request)));
+            verificationEmailService.sendMessage(user.getEmail(), verificationEmailService.buildEmail(user.getName(), getVerificationUrl(request, token.getToken())));
             return ResponseEntity.ok(new MessageResponse("Verification mail successfully sent!"));
         }
 
@@ -132,5 +133,9 @@ public class AuthResource {
 
     private String getAppURL (final HttpServletRequest req) {
         return "http://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath();
+    }
+
+    private String getVerificationUrl (final HttpServletRequest req, String token) {
+        return "http://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/api/v1/auth/confirm-registration?token=" + token;
     }
 }

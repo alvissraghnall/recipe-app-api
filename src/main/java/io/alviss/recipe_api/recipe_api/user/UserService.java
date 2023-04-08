@@ -68,6 +68,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User mapToEntity(final UserDTO userDTO, final User user) {
+        user.setId(userDTO.getId());
         user.setEmail(userDTO.getEmail());
         user.setPassword(userDTO.getPassword());
         user.setName(userDTO.getName());
@@ -81,7 +82,7 @@ public class UserService implements UserDetailsService {
 
     public boolean emailExists(final String email) {
         return userRepository.existsByEmailIgnoreCase(email);
-    }
+    } 
 
     public User findThruEmail (final String email) { return userRepository.findByEmailIgnoreCase(email); }
 

@@ -2,6 +2,7 @@ package io.alviss.recipe_api.recipe_api.auth.verification;
 
 import io.alviss.recipe_api.recipe_api.user.User;
 import io.alviss.recipe_api.recipe_api.user.UserDTO;
+import io.alviss.recipe_api.recipe_api.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 public class VerificationTokenService {
 
     private final VerificationTokenRepository verificationTokenRepository;
+    private final UserService userService;
 
     public VerificationToken create (final User user, final String token) {
         final VerificationTokenDTO newToken = new VerificationTokenDTO(token, user);
@@ -23,6 +25,10 @@ public class VerificationTokenService {
                 token
         );
     }
+
+    // public VerificationToken findByUserDTO (final UserDTO user) {
+    //     return verificationTokenRepository.findByUser(userService.mapToEntity(user, new User()));
+    // }
 
     public VerificationToken findByUser (final User user) {
         return verificationTokenRepository.findByUser(user);

@@ -22,7 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
-@RequestMapping(value = "/api/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserResource {
 
     private final UserService userService;

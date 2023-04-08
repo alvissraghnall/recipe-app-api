@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
             final MethodArgumentNotValidException exception) {
         final BindingResult bindingResult = exception.getBindingResult();
+        
         final List<FieldError> fieldErrors = bindingResult.getFieldErrors()
                 .stream()
                 .map(error -> {
@@ -50,6 +52,11 @@ public class RestExceptionHandler {
                     return fieldError;
                 })
                 .collect(Collectors.toList());
+        final ObjectError globalErr = bindingResult.getGlobalErrors().get(0);
+        final FieldError confirmPasswordError = new FieldError();
+        confirmPasswordError.setErrorCode(globalErr.getCode());confirmPasswordError.setMessage(globalErr.getDefaultMessage());
+        confirmPasswordError.setField("confirmPassword");
+        fieldErrors.add(confirmPasswordError);
         final ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setException(exception.getClass().getSimpleName());
@@ -88,10 +95,10 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidPassword (final InvalidPasswordException ex) {
         ex.printStackTrace();
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
+        errorResponse.setHttpStatus(HttpStatus.UNAUTHORIZED.value());
         errorResponse.setException(ex.getClass().getSimpleName());
         errorResponse.setMessage(ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)

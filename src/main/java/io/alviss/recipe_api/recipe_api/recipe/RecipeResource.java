@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/v1/recipes", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/recipes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class RecipeResource {
 
     private final RecipeService recipeService;

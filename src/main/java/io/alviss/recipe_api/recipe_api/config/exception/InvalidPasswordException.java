@@ -1,9 +1,11 @@
 package io.alviss.recipe_api.recipe_api.config.exception;
 
-public class InvalidPasswordException extends Throwable {
+import org.springframework.security.core.AuthenticationException;
+
+public class InvalidPasswordException extends AuthenticationException {
 
     public InvalidPasswordException() {
-        super("Password entered does not match. Verify, and try again.");
+        super("Password entered is incorrect. Verify, and try again.");
     }
 
     public InvalidPasswordException (String msg) { super(msg); }
