@@ -36,10 +36,11 @@ public class RecipeService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public UUID create(final RecipeDTO recipeDTO) {
+    public RecipeDTO create(final RecipeDTO recipeDTO) {
         final Recipe recipe = new Recipe();
         mapToEntity(recipeDTO, recipe);
-        return recipeRepository.save(recipe).getId();
+        recipeRepository.save(recipe);
+        return recipeDTO;
     }
 
     public void update(final UUID id, final RecipeDTO recipeDTO) {
@@ -49,9 +50,11 @@ public class RecipeService {
         recipeRepository.save(recipe);
     }
 
-    public void delete(final UUID id) {
+    public void delete(final UUID id) throws IllegalArgumentException {
         recipeRepository.deleteById(id);
     }
+
+    // public String 
 
     private RecipeDTO mapToDTO(final Recipe recipe, final RecipeDTO recipeDTO) {
         recipeDTO.setId(recipe.getId());

@@ -10,7 +10,7 @@ import javax.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.alviss.recipe_api.recipe_api.auth.validators.PasswordMatch;
-import io.alviss.recipe_api.recipe_api.auth.validators.ValidateGender;
+import io.alviss.recipe_api.recipe_api.auth.validators.ValidateEnum;
 import io.alviss.recipe_api.recipe_api.auth.verification.VerificationToken;
 import io.alviss.recipe_api.recipe_api.model.Gender;
 import lombok.Getter;
@@ -59,7 +59,7 @@ public class UserDTO implements UserDetails {
     private String confirmPassword;
 
     @NotNull
-    @ValidateGender(targetClassType = Gender.class)
+    @ValidateEnum(targetClassType = Gender.class)
     private String gender;
 
     @NotNull

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.*;
 
 import io.alviss.recipe_api.recipe_api.user.User;
@@ -26,8 +28,9 @@ public class LoginAttempts {
     @Column(nullable = false)
     private int attempts = 0;
 
-    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private final User user;
 
-
+    @Column
+    private LocalDateTime lastFailedLoginAttempt;
 }

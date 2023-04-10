@@ -6,12 +6,12 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class GenderEnumValidator implements ConstraintValidator<ValidateGender, String> {
+public class EnumValidator implements ConstraintValidator<ValidateEnum, String> {
 
     private Set<String> allowedValues;
 
     @Override
-    public void initialize(ValidateGender targetGender) {
+    public void initialize(ValidateEnum targetGender) {
         Class<? extends Enum> enumSelected = targetGender.targetClassType();
         allowedValues = (Set<String>) EnumSet.allOf(enumSelected).stream().map(e -> ((Enum<? extends Enum<?>>) e).name())
                 .collect(Collectors.toSet());

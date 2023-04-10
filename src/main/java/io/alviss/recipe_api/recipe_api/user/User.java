@@ -1,5 +1,6 @@
 package io.alviss.recipe_api.recipe_api.user;
 
+import io.alviss.recipe_api.recipe_api.auth.login_attempts.LoginAttempts;
 import io.alviss.recipe_api.recipe_api.auth.verification.VerificationToken;
 import io.alviss.recipe_api.recipe_api.model.Gender;
 import io.alviss.recipe_api.recipe_api.recipe.Recipe;
@@ -58,6 +59,9 @@ public class User {
 
     @Column
     private boolean accountNonLocked;
+
+    @OneToOne(targetEntity = LoginAttempts.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private LoginAttempts loginAttempts;
 //
 //    @Column
 //    private int failedAttempts;

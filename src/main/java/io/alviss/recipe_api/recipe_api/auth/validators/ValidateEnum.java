@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Constraint(validatedBy = GenderEnumValidator.class)
-public @interface ValidateGender {
+@Constraint(validatedBy = EnumValidator.class)
+public @interface ValidateEnum {
     String message () default "Pass in a valid Gender. Supported values are: 'MALE', 'FEMALE', and 'NONBINARY'";
 
     Class<?>[] groups () default {};
 
     Class<? extends Payload>[] payload() default {};
 
-    Class<? extends Enum<Gender>> targetClassType();
+    Class<? extends Enum<?>> targetClassType();
 }

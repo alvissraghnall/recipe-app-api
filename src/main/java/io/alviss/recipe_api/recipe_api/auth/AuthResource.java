@@ -1,5 +1,6 @@
 package io.alviss.recipe_api.recipe_api.auth;
 
+import io.alviss.recipe_api.recipe_api.auth.login_attempts.LoginAttemptsService;
 import io.alviss.recipe_api.recipe_api.auth.mail.VerificationEmailServiceImpl;
 import io.alviss.recipe_api.recipe_api.auth.payload.LoginPayload;
 import io.alviss.recipe_api.recipe_api.auth.payload.RegisterPayload;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.security.auth.login.AccountLockedException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
@@ -38,6 +40,7 @@ public class AuthResource {
     private final TokenManager tokenManager;
     private final VerificationTokenService verificationTokenService;
     private final VerificationEmailServiceImpl verificationEmailService;
+    private final LoginAttemptsService loginAttemptsService;
 
 //    public AuthController(final UserService userService, final PasswordEncoder passwordEncoder, final TokenManager tokenManager) {
 //        this.userService = userService;
@@ -46,14 +49,19 @@ public class AuthResource {
 //    }
 
     @PostMapping(value = "/signin")
-    public ResponseEntity<?> authenticateUser (@Valid @RequestBody LoginPayload loginPayload) throws InvalidPasswordException {
+    public ResponseEntity<?> authenticateUser (@Valid @RequestBody LoginPayload loginPayload) throws InvalidPasswordException, AccountLockedException {
         final UserDTO user = userService.loadUserByUsername(loginPayload.getEmail());
+
+        final User userEntity = userService.mapToEntity(user, new User());
+
+        if (!loginAttemptsService.incrementAttemptsAndCheckAcctLocked(userEntity)) {
+            throw new AccountLockedException("Account locked due to multiple failed login attempts.");
+        }
 
         final boolean passwordMatches = passwordEncoder.matches(loginPayload.getPassword(), user.getPassword());
 
         if (!passwordMatches) throw new InvalidPasswordException();
 
-        final User userEntity = userService.mapToEntity(user, new User());
         // userService.create(user)
         final VerificationToken _tkn = verificationTokenService.findByUser(userEntity);
 
@@ -64,6 +72,8 @@ public class AuthResource {
             }  
             return ResponseEntity.badRequest().body(new MessageResponse("Email not verified yet. Please verify e-mail address to continue"));
         }
+
+        loginAttemptsService.resetAttempts(userEntity);
 
         String token = tokenManager.generateJwtToken(user);
 

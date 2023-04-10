@@ -2,9 +2,13 @@ package io.alviss.recipe_api.recipe_api.recipe;
 
 import java.util.Set;
 import java.util.UUID;
+
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import io.alviss.recipe_api.recipe_api.auth.validators.ValidateEnum;
+import io.alviss.recipe_api.recipe_api.model.Category;
 import io.alviss.recipe_api.recipe_api.model.Ingredient;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,10 +39,12 @@ public class RecipeDTO {
     private Integer rating;
 
     @NotNull
+    @NotEmpty
     private Set<Ingredient> ingredients;
 
     @NotNull
     @Size(max = 255)
+    @ValidateEnum(targetClassType = Category.class, message = "Pass in a valid Category. Supported values are: 'BREAKFAST', 'LUNCH' & 'DINNER' ")
     private String category;
 
     private String nutrients;

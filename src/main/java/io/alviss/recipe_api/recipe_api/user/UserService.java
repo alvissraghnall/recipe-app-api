@@ -54,6 +54,11 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    public void lockUserAcct (User user) {
+        user.setAccountNonLocked(false);
+        userRepository.save(user);
+    }
+
     private UserDTO mapToDTO(final User user, final UserDTO userDTO) {
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());
