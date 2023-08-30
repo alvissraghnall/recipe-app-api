@@ -17,23 +17,24 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+//@Slf4j
 public class CloudinaryService {
 
-    private final Cloudinary cloudinaryConfig;
-    private final Logger logger;
+    private final Cloudinary cloudinaryConfiguration;
+//    private final Logger logger;
 
     public String uploadFile(MultipartFile file) {
         try {
             File uploadedFile = convertMultipartToFile(file);
             Map uploadResult;
-            uploadResult = cloudinaryConfig.uploader().upload(uploadedFile, ObjectUtils.asMap(
+            uploadResult = cloudinaryConfiguration.uploader().upload(uploadedFile, ObjectUtils.asMap(
                 "folder", "recipe-app",
                 "resource_type", "image"
             ));
             boolean isDeleted = uploadedFile.delete();
-            if (isDeleted) {
-                logger.info("File deleted!");
-            }
+//            if (isDeleted) {
+//                logger.info("File deleted!");
+//            }
             return uploadResult.get("url").toString();
 
         } catch (Exception e) {

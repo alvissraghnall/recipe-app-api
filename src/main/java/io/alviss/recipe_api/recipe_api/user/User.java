@@ -57,6 +57,9 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private Set<Recipe> recipes;
 
+    @ManyToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    private Set<Recipe> favourites;
+
     @Column
     private boolean accountNonLocked;
 

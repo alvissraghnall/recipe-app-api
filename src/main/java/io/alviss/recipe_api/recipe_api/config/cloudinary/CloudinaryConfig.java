@@ -17,7 +17,7 @@ public class CloudinaryConfig {
     @Value("${cloudinary.apiSecret}") private String apiSecret;
     
     @Bean
-    public Cloudinary cloudinaryConfig () {
+    public Cloudinary cloudinaryConfiguration () {
         Cloudinary cloudinary = null;
         Map<String, String> config = new HashMap<>();
         config.put("cloud_name", cloudName);

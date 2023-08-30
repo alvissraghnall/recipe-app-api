@@ -1,13 +1,14 @@
 package io.alviss.recipe_api.recipe_api.auth.login_attempts;
 
 import java.time.LocalDateTime;
-
+import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import io.alviss.recipe_api.recipe_api.user.User;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
+@Service
 public class LoginAttemptsService {
 
     private LoginAttemptsRepository loginAttemptsRepository;
