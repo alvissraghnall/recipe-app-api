@@ -113,7 +113,7 @@ public class AuthResource {
 
         if (token != null) {
             System.out.println(token.toString());
-            User user = userService.findThruEmail(token.getUser().getEmail());
+            final User user = token.getUser();
             if (token.getUser().isEnabled()) {
                 return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(new MessageResponse("User already verified!"));
             }

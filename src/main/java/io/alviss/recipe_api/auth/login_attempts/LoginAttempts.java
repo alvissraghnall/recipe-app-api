@@ -1,8 +1,8 @@
 package io.alviss.recipe_api.auth.login_attempts;
 
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -11,10 +11,13 @@ import javax.persistence.*;
 import io.alviss.recipe_api.user.User;
 
 @Entity
-@Getter
-@Setter
-@RequiredArgsConstructor
+@Data
+@NoArgsConstructor
 public class LoginAttempts {
+
+    public LoginAttempts (User user) {
+        this.user = user;
+    }
 
     public LoginAttempts (User user, int attempts) {
         this.user = user;
@@ -29,7 +32,7 @@ public class LoginAttempts {
     private int attempts = 0;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
-    private final User user;
+    private User user;
 
     @Column
     private LocalDateTime lastFailedLoginAttempt;

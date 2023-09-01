@@ -51,10 +51,10 @@ public class User {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
-    @OneToMany(mappedBy = "author")
+    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
     private Set<Recipe> recipes = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Recipe> favourites = new HashSet<Recipe>();
 
     @Column

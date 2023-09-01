@@ -24,8 +24,7 @@ public class LoginAttemptsService {
         }
 
         if (user.isAccountNonLocked() == false) {
-            if (attempts.getLastFailedLoginAttempt().isAfter(attempts.getLastFailedLoginAttempt().plusHours(5))) {
-
+            if (attempts.getLastFailedLoginAttempt() == null || attempts.getLastFailedLoginAttempt().isAfter(attempts.getLastFailedLoginAttempt().plusHours(5))) {
                 user.setAccountNonLocked(true);
             }
         }
