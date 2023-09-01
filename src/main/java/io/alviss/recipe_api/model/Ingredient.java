@@ -1,16 +1,13 @@
 package io.alviss.recipe_api.model;
 
 import io.alviss.recipe_api.recipe.Recipe;
-import lombok.Getter;
-import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Ingredient {
 
     @Id

@@ -11,14 +11,10 @@ import io.alviss.recipe_api.config.jwt.TokenManager;
 import io.alviss.recipe_api.user.User;
 import io.alviss.recipe_api.user.UserDTO;
 import io.alviss.recipe_api.user.UserService;
-import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -141,16 +137,6 @@ public class AuthResource {
 
         return ResponseEntity.badRequest().body("User with email provided does not exist.");
 
-    }
-
-    @GetMapping("/whoami")
-    public ResponseEntity<UserDTO> getAuthenticatedUser (
-        @AuthenticationPrincipal UserDTO authUser,
-        @CurrentSecurityContext UserDTO ctx
-    ) {
-        System.out.println(authUser);
-        System.out.println(ctx);
-        return ResponseEntity.ok().body(authUser);
     }
 
     private String getAppURL (final HttpServletRequest req) {

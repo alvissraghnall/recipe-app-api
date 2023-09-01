@@ -5,15 +5,12 @@ import io.alviss.recipe_api.auth.verification.VerificationToken;
 import io.alviss.recipe_api.model.Gender;
 import io.alviss.recipe_api.recipe.Recipe;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.*;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -23,8 +20,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "\"user\"")
 @EntityListeners(AuditingEntityListener.class)
-@Getter
-@Setter
+@Data
 public class User {
 
     @Id
@@ -55,7 +51,7 @@ public class User {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Set<Recipe> recipes;
 
     @ManyToMany
@@ -64,7 +60,7 @@ public class User {
     @Column
     private boolean accountNonLocked;
 
-    @OneToOne(targetEntity = LoginAttempts.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = LoginAttempts.class, fetch = FetchType.EAGER)
     private LoginAttempts loginAttempts;
 
     @CreatedDate

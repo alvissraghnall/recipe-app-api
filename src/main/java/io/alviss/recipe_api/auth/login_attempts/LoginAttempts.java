@@ -28,7 +28,7 @@ public class LoginAttempts {
     @Column(nullable = false)
     private int attempts = 0;
 
-    @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     private final User user;
 
     @Column

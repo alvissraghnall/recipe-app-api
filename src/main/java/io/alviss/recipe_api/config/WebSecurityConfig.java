@@ -4,6 +4,9 @@ package io.alviss.recipe_api.config;
 import io.alviss.recipe_api.config.jwt.AuthEntryPointJwt;
 import io.alviss.recipe_api.config.jwt.AuthTokenFilter;
 import io.alviss.recipe_api.user.UserService;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,18 +32,15 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
         prePostEnabled = true,
         securedEnabled = true
 )
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
 
     private final UserService userService;
 
-    private AuthEntryPointJwt unauthorizedHandler;
+    private final PasswordEncoder passwordEncoder;
 
-    public WebSecurityConfig (final UserService userService,
-                              AuthEntryPointJwt unauthorizedHandler) {
-        this.userService = userService;
-        this.unauthorizedHandler = unauthorizedHandler;
-    }
+    private final AuthEntryPointJwt unauthorizedHandler;
 
     private static final RequestMatcher PUBLIC_URL = new OrRequestMatcher(
             new AntPathRequestMatcher("/api/v1/auth/**", "POST", true),
@@ -55,11 +55,6 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public WebSecurityCustomizer webSecurityCustomizer () {
         return web -> web.ignoring().requestMatchers(PUBLIC_URL);
     }
@@ -68,7 +63,7 @@ public class WebSecurityConfig {
     public DaoAuthenticationProvider authenticationProvider () {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         authProvider.setUserDetailsService((UserDetailsService) userService);
 
         return authProvider;
