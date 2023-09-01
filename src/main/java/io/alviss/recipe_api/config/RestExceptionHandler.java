@@ -1,8 +1,12 @@
 package io.alviss.recipe_api.config;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
+import io.alviss.recipe_api.config.exception.EmailInUseException;
 import io.alviss.recipe_api.config.exception.InvalidPasswordException;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
+import java.net.ConnectException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +14,8 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mail.MailSendException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -20,8 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.UnexpectedTypeException;
 
 
 @RestControllerAdvice(annotations = RestController.class)
@@ -35,6 +39,16 @@ public class RestExceptionHandler {
         errorResponse.setException(exception.getClass().getSimpleName());
         errorResponse.setMessage(exception.getMessage());
         return new ResponseEntity<>(errorResponse, exception.getStatus());
+    }
+
+    @ExceptionHandler({MailSendException.class, ConnectException.class })
+    @ApiResponse(responseCode = "4xx/5xx", description = "Error")
+    public ResponseEntity<ErrorResponse> handleMailException (final MailSendException exception) {
+        final ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setHttpStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+        errorResponse.setException(exception.getClass().getSimpleName());
+        errorResponse.setMessage("Could not send verification mail, sadly.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -53,18 +67,23 @@ public class RestExceptionHandler {
                     return fieldError;
                 })
                 .collect(Collectors.toList());
-        final ObjectError globalErr = bindingResult.getGlobalErrors().get(0);
-        final FieldError confirmPasswordError = new FieldError();
-        confirmPasswordError.setErrorCode(globalErr.getCode());confirmPasswordError.setMessage(globalErr.getDefaultMessage());
-        confirmPasswordError.setField("confirmPassword");
-        fieldErrors.add(confirmPasswordError);
+        System.out.println(bindingResult.getGlobalErrors().toString());
+        if (!bindingResult.getGlobalErrors().isEmpty()) {
+            final ObjectError globalErr = bindingResult.getGlobalErrors().get(0);
+            final FieldError confirmPasswordError = new FieldError();
+            confirmPasswordError.setErrorCode(globalErr.getCode());
+            confirmPasswordError.setMessage(globalErr.getDefaultMessage());
+            confirmPasswordError.setField("confirmPassword");
+            fieldErrors.add(confirmPasswordError);
+        }
         final ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setException(exception.getClass().getSimpleName());
         errorResponse.setFieldErrors(fieldErrors);
-        errorResponse.setMessage(exception.getMessage());
         if (exception.getMessage().contains("Validation failed for")) {
             errorResponse.setMessage("Validation of required input fields failed!");
+        } else {
+            errorResponse.setMessage(exception.getMessage());
         }
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -92,11 +111,15 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidPassword (final InvalidPasswordException ex) {
+    @ExceptionHandler({InvalidPasswordException.class, EmailInUseException.class, AuthenticationException.class})
+    public ResponseEntity<ErrorResponse> handleInvalidPassword (final AuthenticationException ex) {
         ex.printStackTrace();
         final ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setHttpStatus(HttpStatus.UNAUTHORIZED.value());
+        if (ex instanceof EmailInUseException) {
+            errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
+        } else {
+            errorResponse.setHttpStatus(HttpStatus.UNAUTHORIZED.value());
+        }
         errorResponse.setException(ex.getClass().getSimpleName());
         errorResponse.setMessage(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);

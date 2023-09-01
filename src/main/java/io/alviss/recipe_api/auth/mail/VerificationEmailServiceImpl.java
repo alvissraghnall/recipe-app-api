@@ -24,7 +24,7 @@ public class VerificationEmailServiceImpl implements VerificationEmailService {
 
     @Override
     @Async
-    public void sendMessage(String to, String text) {
+    public void sendMessage(String to, String subject, String text) {
 
         try {
             MimeMessage mimeMessage = emailSender.createMimeMessage();
@@ -32,7 +32,7 @@ public class VerificationEmailServiceImpl implements VerificationEmailService {
                     new MimeMessageHelper(mimeMessage, "utf-8");
 
             helper.setTo(to);
-            helper.setSubject("Confirm your email");
+            helper.setSubject(subject);
             helper.setText(text, true);
             helper.setFrom(NO_REPY_ADDRESS);
 

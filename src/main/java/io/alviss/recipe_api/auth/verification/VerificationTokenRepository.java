@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 @Repository
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Long> {
 
-    VerificationToken findByToken(String token);
+    VerificationToken findByToken (String token);
 
     VerificationToken findByUser (User user);
 

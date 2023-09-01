@@ -1,5 +1,6 @@
 package io.alviss.recipe_api.auth.validators;
 
+import io.alviss.recipe_api.auth.payload.RegisterPayload;
 import io.alviss.recipe_api.user.UpdateUserPasswordDTO;
 import io.alviss.recipe_api.user.UserDTO;
 
@@ -14,8 +15,8 @@ public class PasswordMatchValidator implements ConstraintValidator<PasswordMatch
 
     @Override
     public boolean isValid(Object obj, ConstraintValidatorContext context) {
-        if (obj instanceof UserDTO) {
-            UserDTO user = (UserDTO) obj;
+        if (obj instanceof RegisterPayload) {
+            RegisterPayload user = (RegisterPayload) obj;
             return user.getConfirmPassword() != null && user.getConfirmPassword().equals(user.getPassword());
         } else if (obj instanceof UpdateUserPasswordDTO) {
             final UpdateUserPasswordDTO user = (UpdateUserPasswordDTO) obj;

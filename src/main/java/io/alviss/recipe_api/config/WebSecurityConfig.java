@@ -46,7 +46,10 @@ public class WebSecurityConfig {
             new AntPathRequestMatcher("/api/v1/auth/**", "POST", true),
             new AntPathRequestMatcher(
                     "/api/v1/test/**"
-            )
+            ),
+            new AntPathRequestMatcher("/error"),
+            new AntPathRequestMatcher("/api/v1/ping")
+
     );
 
     @Bean
@@ -81,6 +84,8 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/v1/auth/**").permitAll()
                 .antMatchers("/api/v1/hello").permitAll()
+                .antMatchers("/api/v1/ping").permitAll()
+                .antMatchers("/error").permitAll()
                 .antMatchers("/api/v1/test/**").permitAll()
                 .anyRequest().authenticated();
 

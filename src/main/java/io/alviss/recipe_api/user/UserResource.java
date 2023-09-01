@@ -46,12 +46,6 @@ public class UserResource {
         return ResponseEntity.ok(userService.get(id));
     }
 
-    @PostMapping
-    @ApiResponse(responseCode = "201")
-    public ResponseEntity<UUID> createUser(@RequestBody @Valid final UserDTO userDTO) {
-        return new ResponseEntity<>(userService.create(userDTO).getId(), HttpStatus.CREATED);
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable final UUID id,
             @RequestBody @Valid final UserDTO userDTO) {

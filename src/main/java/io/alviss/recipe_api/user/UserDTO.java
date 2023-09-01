@@ -4,11 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Transient;
-import javax.validation.constraints.*;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.alviss.recipe_api.auth.validators.PasswordMatch;
 import io.alviss.recipe_api.auth.validators.ValidateEnum;
 import io.alviss.recipe_api.auth.verification.VerificationToken;
@@ -24,11 +20,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Setter
 @NoArgsConstructor
 @PasswordMatch
-public class UserDTO implements UserDetails {
+public class UserDTO extends User implements UserDetails {
 
     private UUID id;
 
-    public UserDTO(String email, String password, String name, String gender, String country) {
+    public UserDTO(String email, String password, String name, Gender gender, String country) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -36,43 +32,21 @@ public class UserDTO implements UserDetails {
         this.country = country;
     }
 
-    @NotNull
-    @Size(max = 255)
-    @NotEmpty
-    @Pattern(regexp = "^[a-zA-Z0-9_!#$%&*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$", message = "Enter a valid email!")
     private String email;
 
-    @NotNull
-    @Size(min = 8, max = 255)
-    @Pattern(regexp = ".*\\d.*", message = "Password must contain at least 1 number!")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
-    @NotNull
-    @Size(max = 255)
-    @NotEmpty
-    @NotBlank
     private String name;
 
-    @NotNull
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private String confirmPassword;
+    private Gender gender;
 
-    @NotNull
-    @ValidateEnum(targetClassType = Gender.class)
-    private String gender;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank
     private String country;
 
     private VerificationToken verificationToken;
 
-    private boolean enabled;
+    private boolean enabled = false;
 
-    @NotNull
-    private boolean accountNonLocked;
+    private boolean accountNonLocked = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

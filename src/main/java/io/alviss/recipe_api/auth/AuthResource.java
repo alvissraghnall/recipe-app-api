@@ -6,6 +6,7 @@ import io.alviss.recipe_api.auth.payload.LoginPayload;
 import io.alviss.recipe_api.auth.payload.RegisterPayload;
 import io.alviss.recipe_api.auth.verification.VerificationToken;
 import io.alviss.recipe_api.auth.verification.VerificationTokenService;
+import io.alviss.recipe_api.config.exception.EmailInUseException;
 import io.alviss.recipe_api.config.exception.InvalidPasswordException;
 import io.alviss.recipe_api.config.jwt.TokenManager;
 import io.alviss.recipe_api.user.User;
@@ -13,6 +14,7 @@ import io.alviss.recipe_api.user.UserDTO;
 import io.alviss.recipe_api.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -87,13 +89,11 @@ public class AuthResource {
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MessageResponse> registerUser (@Valid @RequestBody RegisterPayload registerRequest, final HttpServletRequest request) {
         if (userService.emailExists(registerRequest.getEmail())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Error: Email address already in use."));
+            throw new EmailInUseException();
         }
 
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
+        
         User createdUser = userService.create(registerRequest);
         String token = UUID.randomUUID().toString();
 
@@ -102,7 +102,7 @@ public class AuthResource {
         final String recipientAddress = createdUser.getEmail();
         final String recipientName = createdUser.getName();
         final String subject = "Registration Confirmation";
-        verificationEmailService.sendMessage(recipientAddress, verificationEmailService.buildEmail(recipientName, getVerificationUrl(request, token)));
+        verificationEmailService.sendMessage(recipientAddress, subject, verificationEmailService.buildEmail(recipientName, getVerificationUrl(request, token)));
 
         return ResponseEntity.created(URI.create(getAppURL(request))).body(new MessageResponse("User successfully registered"));
     }
@@ -112,7 +112,11 @@ public class AuthResource {
         VerificationToken token = verificationTokenService.find(confirmationToken);
 
         if (token != null) {
+            System.out.println(token.toString());
             User user = userService.findThruEmail(token.getUser().getEmail());
+            if (token.getUser().isEnabled()) {
+                return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(new MessageResponse("User already verified!"));
+            }
             user.setEnabled(true);
             userService.saveUpdated(user);
             return ResponseEntity.ok(new MessageResponse("Account successfully verified"));
@@ -124,14 +128,14 @@ public class AuthResource {
 
     @GetMapping("/resend-token")
     public ResponseEntity<?> resendToken (@RequestParam("email") String email, HttpServletRequest request) {
-
+        final String subject = "Registration Confirmation";
         User user = userService.findThruEmail(email);
         VerificationToken token = verificationTokenService.findByUser(
                 user
         );
 
         if (token != null) {
-            verificationEmailService.sendMessage(user.getEmail(), verificationEmailService.buildEmail(user.getName(), getVerificationUrl(request, token.getToken())));
+            verificationEmailService.sendMessage(user.getEmail(), subject, verificationEmailService.buildEmail(user.getName(), getVerificationUrl(request, token.getToken())));
             return ResponseEntity.ok(new MessageResponse("Verification mail successfully sent!"));
         }
 

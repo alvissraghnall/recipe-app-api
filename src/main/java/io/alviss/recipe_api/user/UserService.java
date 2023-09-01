@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.alviss.recipe_api.auth.payload.RegisterPayload;
 import io.alviss.recipe_api.config.exception.InvalidPasswordException;
 import io.alviss.recipe_api.model.Gender;
 import lombok.RequiredArgsConstructor;
@@ -42,16 +43,16 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    public User create(final UserDTO userDTO) {
+    public User create(final RegisterPayload payload) {
         final User user = new User();
-        mapToEntity(userDTO, user);
+        mapPayloadToUser(payload, user);
         return userRepository.save(user);
     }
 
-    public void update(final UUID id, final UserDTO userDTO) {
+    public void update(final UUID id, final UserDTO payload) {
         final User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        mapToEntity(userDTO, user);
+        mapToEntity(payload, user);
         userRepository.save(user);
     }
 
@@ -64,29 +65,38 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    private UserDTO mapToDTO(final User user, final UserDTO userDTO) {
-        userDTO.setId(user.getId());
-        userDTO.setEmail(user.getEmail());
-        userDTO.setPassword(user.getPassword());
-        userDTO.setName(user.getName());
-        userDTO.setGender(user.getGender().name());
-        userDTO.setCountry(user.getCountry());
-        userDTO.setVerificationToken(user.getVerificationToken());
-        userDTO.setEnabled(user.isEnabled());
-        userDTO.setAccountNonLocked(user.isAccountNonLocked());
-        return userDTO;
+    private UserDTO mapToDTO(final User user, final UserDTO payload) {
+        payload.setId(user.getId());
+        payload.setEmail(user.getEmail());
+        payload.setPassword(user.getPassword());
+        payload.setName(user.getName());
+        payload.setGender(user.getGender());
+        payload.setCountry(user.getCountry());
+        payload.setVerificationToken(user.getVerificationToken());
+        payload.setEnabled(user.isEnabled());
+        payload.setAccountNonLocked(user.isAccountNonLocked());
+        return payload;
     }
 
-    public User mapToEntity(final UserDTO userDTO, final User user) {
-        user.setId(userDTO.getId());
-        user.setEmail(userDTO.getEmail());
-        user.setPassword(userDTO.getPassword());
-        user.setName(userDTO.getName());
-        user.setGender(Gender.valueOf(userDTO.getGender()));
-        user.setCountry(userDTO.getCountry());
-        user.setVerificationToken(userDTO.getVerificationToken());
-        user.setEnabled(userDTO.isEnabled());
-        user.setAccountNonLocked(userDTO.isAccountNonLocked());
+    public User mapToEntity(final UserDTO payload, final User user) {
+        user.setId(payload.getId());
+        user.setEmail(payload.getEmail());
+        user.setPassword(payload.getPassword());
+        user.setName(payload.getName());
+        user.setGender(payload.getGender());
+        user.setCountry(payload.getCountry());
+        user.setVerificationToken(payload.getVerificationToken());
+        user.setEnabled(payload.isEnabled());
+        user.setAccountNonLocked(payload.isAccountNonLocked());
+        return user;
+    }
+
+    private User mapPayloadToUser (final RegisterPayload payload, final User user) {
+        user.setEmail(payload.getEmail());
+        user.setPassword(payload.getPassword());
+        user.setName(payload.getName());
+        user.setGender(Gender.valueOf(payload.getGender()));
+        user.setCountry(payload.getCountry());
         return user;
     }
 

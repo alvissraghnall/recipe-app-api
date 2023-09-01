@@ -23,8 +23,11 @@ public class LoginAttemptsService {
             user.setAccountNonLocked(false);
         }
 
-        if (user.isAccountNonLocked() == false && attempts.getLastFailedLoginAttempt().isAfter(attempts.getLastFailedLoginAttempt().plusHours(5))) {
-            user.setAccountNonLocked(true);
+        if (user.isAccountNonLocked() == false) {
+            if (attempts.getLastFailedLoginAttempt().isAfter(attempts.getLastFailedLoginAttempt().plusHours(5))) {
+
+                user.setAccountNonLocked(true);
+            }
         }
 
         loginAttemptsRepository.save(attempts);

@@ -51,8 +51,8 @@ public class User {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
-    private Set<Recipe> recipes;
+    @OneToMany(mappedBy = "author")
+    private Set<Recipe> recipes = new HashSet<>();
 
     @ManyToMany
     private Set<Recipe> favourites = new HashSet<Recipe>();
