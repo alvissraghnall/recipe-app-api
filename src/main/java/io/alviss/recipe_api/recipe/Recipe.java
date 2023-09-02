@@ -1,5 +1,6 @@
 package io.alviss.recipe_api.recipe;
 
+import io.alviss.recipe_api.model.Category;
 import io.alviss.recipe_api.model.Ingredient;
 import io.alviss.recipe_api.user.User;
 import java.time.OffsetDateTime;
@@ -51,7 +52,7 @@ public class Recipe {
     private Set<Ingredient> ingredients;
 
     @Column(nullable = false)
-    private String category;
+    private Category category;
 
     @Column(columnDefinition = "text")
     private String nutrients;

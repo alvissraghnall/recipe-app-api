@@ -1,5 +1,6 @@
 package io.alviss.recipe_api.recipe;
 
+import io.alviss.recipe_api.model.Category;
 import io.alviss.recipe_api.user.User;
 import io.alviss.recipe_api.user.UserRepository;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
 
-    public RecipeDTO get(final UUID id) {
+    public RecipeDTO find (final UUID id) {
         return recipeRepository.findById(id)
                 .map(recipe -> mapToDTO(recipe, new RecipeDTO()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -54,7 +55,7 @@ public class RecipeService {
 
     // public String 
 
-    private RecipeDTO mapToDTO(final Recipe recipe, final RecipeDTO recipeDTO) {
+    public RecipeDTO mapToDTO(final Recipe recipe, final RecipeDTO recipeDTO) {
         recipeDTO.setId(recipe.getId());
         recipeDTO.setName(recipe.getName());
         recipeDTO.setImage(recipe.getImage());
@@ -63,7 +64,7 @@ public class RecipeService {
         recipeDTO.setDescription(recipe.getDescription());
         recipeDTO.setRating(recipe.getRating());
         recipeDTO.setIngredients(recipe.getIngredients());
-        recipeDTO.setCategory(recipe.getCategory());
+        recipeDTO.setCategory(recipe.getCategory().name());
         recipeDTO.setNutrients(recipe.getNutrients());
         recipeDTO.setCookTime(recipe.getCookTime());
         recipeDTO.setCountry(recipe.getCountry());
@@ -71,7 +72,7 @@ public class RecipeService {
         return recipeDTO;
     }
 
-    private Recipe mapToEntity(final RecipeDTO recipeDTO, final Recipe recipe) {
+    public Recipe mapToEntity(final RecipeDTO recipeDTO, final Recipe recipe) {
         recipe.setName(recipeDTO.getName());
         recipe.setImage(recipeDTO.getImage());
         recipe.setPrepTime(recipeDTO.getPrepTime());
@@ -79,7 +80,7 @@ public class RecipeService {
         recipe.setDescription(recipeDTO.getDescription());
         recipe.setRating(recipeDTO.getRating());
         recipe.setIngredients(recipeDTO.getIngredients());
-        recipe.setCategory(recipeDTO.getCategory());
+        recipe.setCategory(Category.valueOf(recipeDTO.getCategory()));
         recipe.setNutrients(recipeDTO.getNutrients());
         recipe.setCookTime(recipeDTO.getCookTime());
         recipe.setCountry(recipeDTO.getCountry());

@@ -88,6 +88,9 @@ public class UserService implements UserDetailsService {
         user.setVerificationToken(payload.getVerificationToken());
         user.setEnabled(payload.isEnabled());
         user.setAccountNonLocked(payload.isAccountNonLocked());
+        user.setRecipes(payload.getRecipes());
+        user.setLoginAttempts(payload.getLoginAttempts());
+        user.setFavourites(payload.getFavourites());
         return user;
     }
 

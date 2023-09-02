@@ -45,7 +45,7 @@ public class RecipeResource {
 
     @GetMapping("/{id}")
     public ResponseEntity<RecipeDTO> getRecipe(@PathVariable final UUID id) {
-        RecipeDTO recipe = recipeService.get(id);
+        RecipeDTO recipe = recipeService.find(id);
         if (recipe == null) {
             return ResponseEntity.notFound().build();
         }
