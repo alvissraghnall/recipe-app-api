@@ -1,4 +1,4 @@
-package io.alviss.recipe_api.favourites;
+package io.alviss.recipe_api.user.favourites;
 
 import java.util.UUID;
 import io.alviss.recipe_api.user.User;

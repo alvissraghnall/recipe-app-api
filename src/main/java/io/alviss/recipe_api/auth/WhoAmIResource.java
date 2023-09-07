@@ -20,7 +20,7 @@ public class WhoAmIResource {
     ) {
         System.out.println(authUser);
         System.out.println(ctx);
-        return ResponseEntity.ok().body(ctx);
+        return ResponseEntity.ok().body(authUser);
     }
     
 }

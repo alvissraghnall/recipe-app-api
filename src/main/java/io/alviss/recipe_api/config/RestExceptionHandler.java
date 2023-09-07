@@ -3,6 +3,7 @@ package io.alviss.recipe_api.config;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 import io.alviss.recipe_api.config.exception.EmailInUseException;
+import io.alviss.recipe_api.config.exception.InvalidJwtException;
 import io.alviss.recipe_api.config.exception.InvalidPasswordException;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
@@ -108,6 +109,16 @@ public class RestExceptionHandler {
         if (ex.getMessage().contains("Required request body is missing")) {
             errorResponse.setMessage("Please pass in a request body!");
         }
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidJwtException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidJwtException (final InvalidJwtException ex) {
+        ex.printStackTrace();
+        final ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setHttpStatus(HttpStatus.UNAUTHORIZED.value());
+        errorResponse.setException(ex.getClass().getSimpleName());
+        errorResponse.setMessage(ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 

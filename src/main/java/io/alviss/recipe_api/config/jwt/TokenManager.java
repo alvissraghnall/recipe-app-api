@@ -3,6 +3,7 @@ package io.alviss.recipe_api.config.jwt;
 
 import static org.apache.commons.lang3.StringUtils.removeStart;
 
+import io.alviss.recipe_api.config.exception.InvalidJwtException;
 import io.alviss.recipe_api.user.UserDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -45,24 +46,31 @@ public class TokenManager implements Serializable {
                 .compact();
     }
     public boolean validateJwtToken(String token) {
+        String errorMsg;
         try {
             Jwts.parserBuilder().setSigningKey(keypair.getPublic()).build().parseClaimsJws(token);
             return true;
         } catch (SignatureException e) {
-            logger.error("Invalid JWT Signature: {}", e.getMessage());
+            errorMsg = String.format("Invalid JWT Signature: {}", e.getMessage());
+            logger.error(errorMsg);
         } catch (MalformedJwtException e) {
-            logger.error("Invalid JWT Token: {}", e.getMessage());
+            errorMsg = String.format("Invalid JWT Token: {}", e.getMessage());
+            logger.error(errorMsg);
         } catch (ExpiredJwtException e) {
-            logger.error("JWT Token is expired: {}", e.getMessage());
+            errorMsg = String.format("JWT Token is expired: {}", e.getMessage());
+            logger.error(errorMsg);
         } catch (UnsupportedJwtException e) {
-            logger.error("JWT Token is unsupported: {}", e.getMessage());
+            errorMsg = String.format("JWT Token is unsupported: {}", e.getMessage());
+            logger.error(errorMsg);
         } catch (IllegalArgumentException e) {
-            logger.error("JWT Claims string is empty: {}", e.getMessage());
+            errorMsg = String.format("JWT Claims string is empty: {}", e.getMessage());
+            logger.error(errorMsg);
         } catch (Exception e) {
-            logger.error("Error: {}", e.getMessage());
+            errorMsg = String.format("Error: {}", e.getMessage());
+            logger.error(errorMsg);
         }
 
-        return false;
+        throw new InvalidJwtException(errorMsg);
     }
 
     public String getUsernameFromToken(String token) {
