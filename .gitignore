@@ -37,3 +37,8 @@ build/
 ### VS Code ###
 .vscode/
 recipe-api.userlibraries
+
+
+# keys
+*.pem
+*.key

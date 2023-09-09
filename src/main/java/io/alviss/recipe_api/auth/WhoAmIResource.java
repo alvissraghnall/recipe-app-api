@@ -15,11 +15,9 @@ public class WhoAmIResource {
     
     @GetMapping
     public ResponseEntity<UserDTO> getAuthenticatedUser (
-        @AuthenticationPrincipal UserDTO authUser,
-        @CurrentSecurityContext UserDTO ctx
+        @AuthenticationPrincipal UserDTO authUser
     ) {
         System.out.println(authUser);
-        System.out.println(ctx);
         return ResponseEntity.ok().body(authUser);
     }
     
