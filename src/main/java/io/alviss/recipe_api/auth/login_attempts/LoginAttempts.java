@@ -2,7 +2,7 @@ package io.alviss.recipe_api.auth.login_attempts;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +31,8 @@ public class LoginAttempts {
     @Column(nullable = false)
     private int attempts = 0;
 
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER, optional = false)
+    @ToString.Exclude
     private User user;
 
     @Column

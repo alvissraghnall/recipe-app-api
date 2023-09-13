@@ -25,6 +25,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -99,18 +100,23 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class, InvalidFormatException.class })
     public ResponseEntity<ErrorResponse> handleMessageNotReadable (final HttpMessageNotReadableException ex) {
         ex.printStackTrace();
         final ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setHttpStatus(HttpStatus.BAD_REQUEST.value());
         errorResponse.setException(ex.getClass().getSimpleName());
-        errorResponse.setMessage(ex.getMessage());
         if (ex.getMessage().contains("Required request body is missing")) {
             errorResponse.setMessage("Please pass in a request body!");
+        } else if (ex.getMessage().contains("type 'java.lang.String' to required type 'java.util.UUID'")) {
+            errorResponse.setMessage("Invalid UUID passed in request body!");
+        } else if (ex.getMessage().contains("Cannot construct instance of `io.alviss.recipe_api.model.Ingredient`'java.util.UUID'")) {
+            errorResponse.setMessage("Please enter a valid Ingredient!");
+        } else {
+            errorResponse.setMessage(ex.getMessage());
         }
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
+    } 
 
     @ExceptionHandler(InvalidJwtException.class)
     public ResponseEntity<ErrorResponse> handleInvalidJwtException (final InvalidJwtException ex) {

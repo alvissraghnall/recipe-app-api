@@ -48,7 +48,7 @@ public class Recipe {
     @Column
     private Integer rating;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     private Set<Ingredient> ingredients;
 
     @Column(nullable = false)

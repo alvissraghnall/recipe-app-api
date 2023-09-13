@@ -3,6 +3,8 @@ package io.alviss.recipe_api.recipe;
 import io.alviss.recipe_api.auth.MessageResponse;
 import io.alviss.recipe_api.config.cloudinary.CloudinaryService;
 import io.alviss.recipe_api.user.User;
+import io.alviss.recipe_api.user.UserDTO;
+import io.alviss.recipe_api.user.UserService;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 
@@ -35,6 +37,7 @@ import com.cloudinary.utils.ObjectUtils;
 public class RecipeResource {
 
     private final RecipeService recipeService;
+    private final UserService userService;
     private final CloudinaryService cloudinaryService;
     
 
@@ -56,8 +59,10 @@ public class RecipeResource {
     @ApiResponse(responseCode = "201")
     public ResponseEntity<RecipeDTO> createRecipe(
         @RequestBody @Valid final RecipeDTO recipeDTO,
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal UserDTO user
     ) {
+        final User mainUser = userService.mapToEntity(user, new User());
+        recipeDTO.setAuthor(mainUser);
         RecipeDTO createdRecipe = recipeService.create(recipeDTO);
         return ResponseEntity.created(
             ServletUriComponentsBuilder.fromCurrentRequest()
@@ -71,7 +76,7 @@ public class RecipeResource {
     public ResponseEntity<Void> updateRecipe(
             @PathVariable final UUID id,
             @RequestBody final RecipeDTO recipeDTO,
-            @AuthenticationPrincipal User user        
+            @AuthenticationPrincipal UserDTO user        
     ) {
         recipeService.update(id, recipeDTO);
         return ResponseEntity.ok().build();
@@ -81,7 +86,7 @@ public class RecipeResource {
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteRecipe(
         @PathVariable final UUID id,
-        @AuthenticationPrincipal User user        
+        @AuthenticationPrincipal UserDTO user        
     ) {
         try {
             return ResponseEntity.noContent().build();
@@ -93,7 +98,7 @@ public class RecipeResource {
     @PostMapping("/image/upload")
     public ResponseEntity<Map<String, String>> submitRecipeImage (
         @RequestParam("image") MultipartFile imgFile,
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal UserDTO user
     ) {
         String imgUrl = cloudinaryService.uploadFile(imgFile);
 

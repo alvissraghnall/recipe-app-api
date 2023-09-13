@@ -1,12 +1,10 @@
 package io.alviss.recipe_api.user;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
 import io.alviss.recipe_api.auth.validators.PasswordMatch;
-import io.alviss.recipe_api.auth.validators.ValidateEnum;
 import io.alviss.recipe_api.auth.verification.VerificationToken;
 import io.alviss.recipe_api.model.Gender;
 import lombok.Getter;

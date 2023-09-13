@@ -12,6 +12,7 @@ public class ApiBasePathConfig implements WebMvcConfigurer {
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
+        logger.info(null);
         configurer.addPathPrefix("/api/v1", clazz -> true);
     }
 

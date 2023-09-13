@@ -3,6 +3,7 @@ package io.alviss.recipe_api.recipe;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -41,6 +42,7 @@ public class RecipeDTO {
 
     @NotNull
     @NotEmpty
+    @Valid
     private Set<Ingredient> ingredients;
 
     @NotNull

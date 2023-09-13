@@ -12,9 +12,15 @@ import io.alviss.recipe_api.auth.validators.ValidateEnum;
 import io.alviss.recipe_api.model.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 @AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
 public class RegisterPayload {
     
     @NotNull
@@ -47,5 +53,20 @@ public class RegisterPayload {
     @NotEmpty
     @NotBlank
     private String country;
+
+    // @Override
+    // public Gender getGender() {
+    //     return Gender.valueOf(gender);
+    // }
+
+	// @Override
+	// public void setCountry(String country) {
+	// 	super.setCountry(country);
+	// }
+
+    // @Override
+	// public void setName(String name) {
+	// 	super.setName(name);
+	// }
 
 }

@@ -2,7 +2,6 @@ package io.alviss.recipe_api.auth.validators;
 
 import io.alviss.recipe_api.auth.payload.RegisterPayload;
 import io.alviss.recipe_api.user.UpdateUserPasswordDTO;
-import io.alviss.recipe_api.user.UserDTO;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

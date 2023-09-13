@@ -1,4 +1,4 @@
-package io.alviss.recipe_api.auth;
+package io.alviss.recipe_api.auth.payload;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

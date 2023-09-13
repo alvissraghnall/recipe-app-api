@@ -2,6 +2,8 @@ package io.alviss.recipe_api.auth;
 
 import io.alviss.recipe_api.auth.login_attempts.LoginAttemptsService;
 import io.alviss.recipe_api.auth.mail.VerificationEmailServiceImpl;
+import io.alviss.recipe_api.auth.payload.AuthenticationResult;
+import io.alviss.recipe_api.auth.payload.JwtResponse;
 import io.alviss.recipe_api.auth.payload.LoginPayload;
 import io.alviss.recipe_api.auth.payload.RegisterPayload;
 import io.alviss.recipe_api.auth.verification.VerificationToken;
@@ -19,7 +21,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.WebRequest;
 
 import javax.security.auth.login.AccountLockedException;
 import javax.servlet.http.HttpServletRequest;
@@ -50,40 +51,13 @@ public class AuthResource {
 
     @PostMapping(value = "/signin")
     public ResponseEntity<?> authenticateUser (@Valid @RequestBody LoginPayload loginPayload) throws InvalidPasswordException, AccountLockedException {
-        final UserDTO user = userService.loadUserByUsername(loginPayload.getEmail());
+        AuthenticationResult authenticationResult = userService.authenticateUser(loginPayload);
 
-        final User userEntity = userService.mapToEntity(user, new User());
-
-        if (!loginAttemptsService.incrementAttemptsAndCheckAcctLocked(userEntity)) {
-            throw new AccountLockedException("Account locked due to multiple failed login attempts.");
+        if (authenticationResult.isSuccess()) {
+            return ResponseEntity.ok(authenticationResult.getJwtResponse());
+        } else {
+            return ResponseEntity.badRequest().body(new MessageResponse(authenticationResult.getMessage()));
         }
-
-        final boolean passwordMatches = passwordEncoder.matches(loginPayload.getPassword(), user.getPassword());
-
-        if (!passwordMatches) throw new InvalidPasswordException();
-
-        // userService.create(user)
-        final VerificationToken _tkn = verificationTokenService.findByUser(userEntity);
-
-        if (user.isEnabled() == false){
-            if (_tkn.getExpiryDate().after(new Date())){
-                userService.delete(user.getId());
-                return ResponseEntity.badRequest().body(new MessageResponse("Did not verify email so token expired. Please recreate account."));
-            }  
-            return ResponseEntity.badRequest().body(new MessageResponse("Email not verified yet. Please verify e-mail address to continue"));
-        }
-
-        loginAttemptsService.resetAttempts(userEntity);
-
-        String token = tokenManager.generateJwtToken(user);
-
-        final JwtResponse response = new JwtResponse();
-        response.setToken(token);
-        response.setEmail(user.getEmail());
-        response.setID(user.getId().toString());
-
-        return ResponseEntity.ok(response);
-
     }
 
     @PostMapping(value = "/signup", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,14 +69,11 @@ public class AuthResource {
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         
         User createdUser = userService.create(registerRequest);
-        String token = UUID.randomUUID().toString();
-
-        verificationTokenService.create(createdUser, token);
-
+    
         final String recipientAddress = createdUser.getEmail();
         final String recipientName = createdUser.getName();
         final String subject = "Registration Confirmation";
-        verificationEmailService.sendMessage(recipientAddress, subject, verificationEmailService.buildEmail(recipientName, getVerificationUrl(request, token)));
+        verificationEmailService.sendMessage(recipientAddress, subject, verificationEmailService.buildEmail(recipientName, getVerificationUrl(request, createdUser.getVerificationToken().getToken())));
 
         return ResponseEntity.created(URI.create(getAppURL(request))).body(new MessageResponse("User successfully registered"));
     }
@@ -112,13 +83,10 @@ public class AuthResource {
         VerificationToken token = verificationTokenService.find(confirmationToken);
 
         if (token != null) {
-            System.out.println(token.toString());
-            final User user = token.getUser();
             if (token.getUser().isEnabled()) {
                 return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body(new MessageResponse("User already verified!"));
             }
-            user.setEnabled(true);
-            userService.saveUpdated(user);
+            verificationTokenService.update(token);
             return ResponseEntity.ok(new MessageResponse("Account successfully verified"));
         }
 
@@ -147,7 +115,7 @@ public class AuthResource {
         return "http://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath();
     }
 
-    private String getVerificationUrl (final HttpServletRequest req, String token) {
-        return "http://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/api/v1/auth/confirm-registration?token=" + token;
+    private String getVerificationUrl (final HttpServletRequest req, UUID token) {
+        return "http://" + req.getServerName() + ":" + req.getServerPort() + req.getContextPath() + "/api/v1/auth/confirm-registration?token=" + token.toString();
     }
 }

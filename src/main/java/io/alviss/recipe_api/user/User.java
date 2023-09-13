@@ -45,22 +45,28 @@ public class User {
     @Column(nullable = false)
     private String country;
 
-    @OneToOne(targetEntity = VerificationToken.class)
-    private VerificationToken verificationToken;
+    @OneToOne(targetEntity = VerificationToken.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true) // Use EAGER loading for verificationToken
+    private VerificationToken verificationToken; 
 
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean enabled;
 
-    @OneToMany(mappedBy = "author", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
     private Set<Recipe> recipes = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_favorites",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "recipe_id")
+    )
     private Set<Recipe> favourites = new HashSet<Recipe>();
 
     @Column
     private boolean accountNonLocked;
 
-    @OneToOne(targetEntity = LoginAttempts.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = LoginAttempts.class, fetch = FetchType.EAGER, cascade = {CascadeType.MERGE, CascadeType.REMOVE})
+    @JoinColumn(name = "login_attempts_id") 
     private LoginAttempts loginAttempts;
 
     @CreatedDate

@@ -4,13 +4,12 @@ package io.alviss.recipe_api.auth.verification;
 import io.alviss.recipe_api.user.User;
 import lombok.*;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
-
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -25,7 +24,7 @@ public class VerificationTokenDTO {
 
     @NotBlank
     @NotNull
-    private String token;
+    private UUID token;
 
     @NotBlank
     @NotNull
@@ -34,7 +33,7 @@ public class VerificationTokenDTO {
 
     private Date expiryDate;
 
-    public VerificationTokenDTO(String token, User user) {
+    public VerificationTokenDTO(UUID token, User user) {
         this.token = token;
         this.user = user;
         this.expiryDate = calculateExpiry(EXPIRATION);
@@ -55,7 +54,7 @@ public class VerificationTokenDTO {
         return token1;
     }
 
-    public void updateToken (final String token) {
+    public void updateToken (final UUID token) {
         this.setToken(token);
         this.expiryDate = calculateExpiry(EXPIRATION);
     }

@@ -1,30 +1,20 @@
 package io.alviss.recipe_api.config.jwt;
 
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 import io.alviss.recipe_api.config.exception.InvalidJwtException;
 import io.alviss.recipe_api.user.UserDTO;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.PrivateKey;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import lombok.RequiredArgsConstructor;
 

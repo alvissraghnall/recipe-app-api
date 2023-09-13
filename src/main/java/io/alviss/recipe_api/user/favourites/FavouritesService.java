@@ -2,7 +2,7 @@ package io.alviss.recipe_api.user.favourites;
 
 import java.util.Set;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.stereotype.Service;
 
@@ -17,13 +17,17 @@ public class FavouritesService {
 
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public Set<Recipe> getUserRecipes (
         final UserDTO authUser
     ) {
+        authUser.getFavourites().size();
+        System.out.println(authUser.toString());
+
         return authUser.getFavourites();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void toggleRecipeInFavorites(final UserDTO user, Recipe recipe) {
         Set<Recipe> favorites = user.getFavourites();
 

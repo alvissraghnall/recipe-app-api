@@ -1,10 +1,14 @@
 package io.alviss.recipe_api.auth.login_attempts;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.transaction.annotation.Transactional;
 
 import io.alviss.recipe_api.user.User;
+import io.alviss.recipe_api.user.UserRepository;
+import io.alviss.recipe_api.user.UserService;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -12,26 +16,43 @@ import lombok.AllArgsConstructor;
 public class LoginAttemptsService {
 
     private LoginAttemptsRepository loginAttemptsRepository;
+    // private UserService userService;
+    private UserRepository userRepository;
     
+    @Transactional
     public boolean incrementAttemptsAndCheckAcctLocked (User user) {
+
+        // User managedUser = userRepository.findById(user.getId()).orElse(null);
+
+        // if (managedUser == null) {
+        //     // Handle the case where the user is not found (e.g., throw an exception or return an error)
+        //     return false;
+        // }
+
         LoginAttempts attempts = loginAttemptsRepository.findLoginAttemptsByUser(user)
             .orElse(new LoginAttempts(user));
-        attempts.setAttempts(attempts.getAttempts()+1);
+        attempts.setAttempts(attempts.getAttempts() + 1);
 
-        if(attempts.getAttempts() >= 5 && user.isAccountNonLocked() == true) {
+        if (attempts.getAttempts() >= 5 && user.isAccountNonLocked()) {
             attempts.setLastFailedLoginAttempt(LocalDateTime.now());
             user.setAccountNonLocked(false);
         }
-
-        if (user.isAccountNonLocked() == false) {
-            if (attempts.getLastFailedLoginAttempt() == null || attempts.getLastFailedLoginAttempt().isAfter(attempts.getLastFailedLoginAttempt().plusHours(5))) {
+    
+        if (!user.isAccountNonLocked()) {
+            if (attempts.getLastFailedLoginAttempt() == null || attempts.getLastFailedLoginAttempt().isBefore(LocalDateTime.now().minusHours(5))) {
                 user.setAccountNonLocked(true);
             }
         }
+    
 
-        loginAttemptsRepository.save(attempts);
+        user.setLoginAttempts(attempts);
+        // userService.saveUpdated(user);
 
-        return user.isAccountNonLocked() == true ? attempts.getAttempts() < 5 : true;
+        // attempts.setUser(user);
+    
+        // loginAttemptsRepository.save(attempts);
+
+        return user.isAccountNonLocked() || attempts.getAttempts() < 5;
         
     }
 
@@ -46,5 +67,9 @@ public class LoginAttemptsService {
         attempts.setLastFailedLoginAttempt(null);
 
         loginAttemptsRepository.save(attempts);
+    }
+
+    public Optional<LoginAttempts> getByUser (User user) {
+        return loginAttemptsRepository.findLoginAttemptsByUser(user);
     }
 }

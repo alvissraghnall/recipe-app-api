@@ -1,7 +1,5 @@
 package io.alviss.recipe_api.auth.validators;
 
-import io.alviss.recipe_api.model.Gender;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.ElementType;
